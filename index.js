@@ -2,8 +2,6 @@
  * Created by iddogino on 4/08/14.
  */
 
-//TODO findAndModify
-
 var clone = require('clone');
 
 var nop = function() {}; //An empty function
@@ -28,8 +26,7 @@ module.exports = function(collection) {
         save:[],
         insert:[],
         update:[],
-        remove:[],
-        findAndModify:[]
+        remove:[]
     };
 
     //Will hold all functions that will be called after each action
@@ -37,8 +34,7 @@ module.exports = function(collection) {
         save:[],
         insert:[],
         update:[],
-        remove:[],
-        findAndModify:[]
+        remove:[]
     };
 
     //This will be returned. Each action that will be chosen will lead to the addition of a trigger to it. Each one returns a chainer object for chaining.
@@ -57,10 +53,6 @@ module.exports = function(collection) {
         },
         remove: function (trigger) {
             triggers.remove.push(trigger);
-            return chainer;
-        },
-        findAndModify: function (trigger) {
-            triggers.findAndModify.push(trigger);
             return chainer;
         },
         on: function(event, trigger) { //This will add after-triggers
