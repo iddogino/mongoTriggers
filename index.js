@@ -11,6 +11,7 @@ var nop = function() {}; //An empty function
 //Returns a function, that when called with arguments A, will call fn([A]) followed by injectFn([A])
 //This will make injectFn execute after fn, when calling the returned function (both will be called with the arguments given to the returned function
 var injectAfter = function(fn,injectFn) {
+
     return function () {
         var args = arguments; //These are the arguments the returned function was called with, and thus fn and injectFn will be called with these arguments
         fn.apply(null,args); //Calling fn first
@@ -21,13 +22,14 @@ var injectAfter = function(fn,injectFn) {
 };
 
 //Adding a before trigger: module(collection).operation() -> module(users).save(triggerFunction);
-moodule.exports = function(collection) {
+module.exports = function(collection) {
     //Will holds all functions that will be called before each action
     var triggers = {
         save:[],
         insert:[],
         update:[],
-        remove:[]
+        remove:[],
+        findAndModify:[]
     };
 
     //Will hold all functions that will be called after each action
@@ -35,25 +37,30 @@ moodule.exports = function(collection) {
         save:[],
         insert:[],
         update:[],
-        remove:[]
+        remove:[],
+        findAndModify:[]
     };
 
     //This will be returned. Each action that will be chosen will lead to the addition of a trigger to it. Each one returns a chainer object for chaining.
     var chainer = {
         save: function (trigger) {
-            trigger.save.push(trigger);
+            triggers.save.push(trigger);
             return chainer;
         },
         insert: function (trigger) {
-            trigger.insert.push(trigger);
+            triggers.insert.push(trigger);
             return chainer;
         },
         update: function (trigger) {
-            trigger.update.push(trigger);
+            triggers.update.push(trigger);
             return chainer;
         },
         remove: function (trigger) {
-            trigger.remove.push(trigger);
+            triggers.remove.push(trigger);
+            return chainer;
+        },
+        findAndModify: function (trigger) {
+            triggers.findAndModify.push(trigger);
             return chainer;
         },
         on: function(event, trigger) { //This will add after-triggers
@@ -65,18 +72,20 @@ moodule.exports = function(collection) {
 
     //This will create a function that performs all the triggers for fn, then fn, that all it's after-triggers
     var injectTriggers = function(fn,triggers,listeners) {
-        var stubArgs = [undefined, undefined, undefined];
         return function() {
             var index = 0;
             var args = Array.prototype.slice.call(arguments);
             var callback = nop;
 
             if(typeof args[args.length -1] === 'function') {
-                callback = args.pop;
+
+                callback = args.pop();
+
                 if(listeners.length > 0) {
                     var originArgs = clone(args);
                     callback = injectAfter(callback, function() {
-                        var listenerArgs = Array.prototype.slice.call(arguments).concat(origArgs);
+
+                        var listenerArgs = Array.prototype.slice.call(arguments).concat(originArgs);
                         listeners.forEach(function (listener) {
                             listener.apply(collection, listenerArgs);
                         });
@@ -88,11 +97,7 @@ moodule.exports = function(collection) {
                 if(err) return callback(err);
                 var trigger = triggers[index++];
                 if(!trigger) return fn.apply(collection, args.concat(callback));
-                trigger.apply(collection, args
-                    .concat(stubArgs)
-                    .slice(0, triggers.length-1)
-                    .concat(next)
-                );
+                trigger.apply(collection, args.concat(next));
             };
 
             next();
@@ -103,6 +108,7 @@ moodule.exports = function(collection) {
     collection.insert = injectTriggers(collection.insert, triggers.insert, listeners.insert);
     collection.update = injectTriggers(collection.update, triggers.update, listeners.update);
     collection.remove = injectTriggers(collection.remove, triggers.remove, listeners.remove);
+    collection.findAndModify = injectTriggers(collection.findAndModify, triggers.findAndModify, listeners.findAndModify);
 
     return chainer;
 };

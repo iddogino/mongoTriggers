@@ -1,5 +1,5 @@
 {
-  "name": "mongoTriggers",
+  "name": "mongo-triggers",
   "version": "0.0.1",
   "description": "Adds the ability to add triggers and listeners to mongoDB operations, when using the mongoJS driver ",
   "main": "index.js",
