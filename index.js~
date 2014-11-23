@@ -34,9 +34,7 @@ module.exports = function(collection) {
         save:[],
         insert:[],
         update:[],
-        remove:[],
-    	find:[],
-    	findOne:[]
+        remove:[]
     };
 
     //This will be returned. Each action that will be chosen will lead to the addition of a trigger to it. Each one returns a chainer object for chaining.

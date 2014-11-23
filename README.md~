@@ -69,16 +69,7 @@ Listeners are created using the 'on' function:
       // update  : { name: "Anders" }
       // options : undefined (since no options object was passed to the update function)
     });
-
-
-**You can listen to:**
-- save
-- insert
-- update
-- remove
-- find
-- findOne
-
+    
 Chaining:
 ---------
 
