@@ -12,63 +12,70 @@ There are 2 types of triggers:
 Triggers
 --------
 
-    //Add a trigger to db.user.save()
-    triggers(db.users).save(function(document, next) {
-        //...
-        next();
-    });
+```javascript
+//Add a trigger to db.user.save()
+triggers(db.users).save(function(document, next) {
+    //...
+    next();
+});
     
-    //Add a trigger to db.user.insert()
-    triggers(db.users).insert(function(document, next) {
-        //...
-        next();
-    });
+//Add a trigger to db.user.insert()
+triggers(db.users).insert(function(document, next) {
+    //...
+    next();
+});
     
-    //Add a trigger to db.user.update()
-    triggers(db.users).update(function(query, <update>, <options>, next) {
-        //...
-        next();
-    });
+//Add a trigger to db.user.update()
+triggers(db.users).update(function(query, <update>, <options>, next) {
+    //...
+    next();
+});
     
-    //Add a trigger to db.user.remove()
-    triggers(db.users).remove(function(query, next) {
-        //...
-        next();
-    });
-    
+//Add a trigger to db.user.remove()
+triggers(db.users).remove(function(query, next) {
+    //...
+    next();
+});
+```    
     
 Triggers can abort execution like that:
 
-    triggers(db.users).save(function(document, next) {
-        //Check if a user with the same email exists in data base:
-        db.users.findOne({email:document.email}, function(err,doc) {
-            if(doc)
-                next(new Error());
-            else
-                next();
-        });
+```javascript
+triggers(db.users).save(function(document, next) {
+    //Check if a user with the same email exists in data base:
+    db.users.findOne({email:document.email}, function(err,doc) {
+        if(doc)
+            next(new Error());
+        else
+            next();
     });
+});
+```
     
 Filters can also modify the document:
 
-    triggers(db.users).save(function(document, next) {
-        //Add a 'created' date to the new user
-        document.created = new Date();
-        next();
-    });
+```javascript
+triggers(db.users).save(function(document, next) {
+    //Add a 'created' date to the new user
+    document.created = new Date();
+    next();
+});
+```
     
 Listeners
 ---------
 
 Listeners are created using the 'on' function:
 
-    triggers(db.members).on('save', function (error, result, query, update, options) {
-      // error   : null (unless something went wrong)
-      // result  : { ... } (in case of the save command, this will be a lastErrorObject)
-      // query   : { _id: "foo" }
-      // update  : { name: "Anders" }
-      // options : undefined (since no options object was passed to the update function)
-    });
+```javascript
+triggers(db.members).on('save', function (error, result, query, update, options) {
+  // error   : null (unless something went wrong)
+  // result  : { ... } (in case of the save command, this will be a lastErrorObject)
+  // query   : { _id: "foo" }
+  // update  : { name: "Anders" }
+  // options : undefined (since no options object was passed to the update function)
+});
+```
 
 
 **You can listen to:**
@@ -84,11 +91,12 @@ Chaining:
 
 Operation may also be chained like that:
 
-    triggers(db.members)
-        .update(function(query, <update>, <options>, next) {})
-        .save(function(document, next) {})
-        .on('remove', function(error, result, document) {});
-   
+```javascript
+triggers(db.members)
+    .update(function(query, <update>, <options>, next) {})
+    .save(function(document, next) {})
+    .on('remove', function(error, result, document) {});
+```
 
 
 
